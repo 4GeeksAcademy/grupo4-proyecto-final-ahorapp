@@ -36,7 +36,7 @@ def signup_user():
         return jsonify({'msg': 'Datos incompletos, por favor llenar todos los datos del usuario'}), 400
     
 
-    user = User.query.filter_by(email = email).first
+    user = User.query.filter_by(email = email).first()
 
     if user:
         return jsonify({'msg' : 'El email utilizado ya esta registrado, por favor utilizar otro'}), 400
