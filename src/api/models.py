@@ -3,7 +3,35 @@ from sqlalchemy import String, Boolean, ForeignKey, DateTime, Integer, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 
-db = SQLAlchemy()
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(String(120), nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    phone: Mapped[str] = mapped_column(String(40))
+    address: Mapped[str] = mapped_column(String(120))
+    last_login: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now(timezone.utc))
+    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=True)
+
+    wallets: Mapped[list["Wallet"]] = relationship(back_populates="user")
+    records: Mapped[list["Record"]] = relationship(back_populates="user")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "phone": self.phone,
+            "address": self.address,
+            "last_login": self.last_login,
+            "is_active": self.is_active,
+        }
+
 
 
 class Record(db.Model):
