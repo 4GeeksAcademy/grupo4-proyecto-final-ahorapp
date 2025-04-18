@@ -1,21 +1,84 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, Integer, Float
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Integer, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(250), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=True)
 
-    def __repr__(self):
-        return f'<User {self.email}>'
+class Record(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    description: Mapped[str] = mapped_column(String(120), nullable=False)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now(timezone.utc))
+    amount: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    type: Mapped[str] = mapped_column(String(120))
+
+    category_id: Mapped[int] = mapped_column(ForeignKey("category.id"), nullable=False)
+    wallet_id: Mapped[int] = mapped_column(ForeignKey("wallet.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+
+    category: Mapped["Category"] = relationship(back_populates="records")
+    wallet: Mapped["Wallet"] = relationship(back_populates="records")
+    user: Mapped["User"] = relationship(back_populates="records")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "description": self.description,
+            "timestamp": self.timestamp,
+            "amount": self.amount,
+            "type": self.type
+        }
+
+
+class Category(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str] = mapped_column(String(120), nullable=False)
+
+    records: Mapped[list["Record"]] = relationship(back_populates="category")
 
     def serialize(self):
         return {
             "id": self.id,
             "name": self.name,
-            "email": self.email,
-            # do not serialize the password, its a security breach
+            "description": self.description
+        }
+
+
+class Currency(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    symbol: Mapped[str] = mapped_column(String(120), nullable=False)
+    exchange_rate: Mapped[float] = mapped_column(Float, nullable=True)
+
+    wallets: Mapped[list["Wallet"]] = relationship(back_populates="currency")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "symbol": self.symbol,
+            "exchange_rate": self.exchange_rate
+        }
+
+
+class Wallet(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    total_value: Mapped[int] = mapped_column(nullable=False)
+
+    currency_id: Mapped[int] = mapped_column(ForeignKey("currency.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+
+    currency: Mapped["Currency"] = relationship(back_populates="wallets")
+    user: Mapped["User"] = relationship(back_populates="wallets")
+    records: Mapped[list["Record"]] = relationship(back_populates="wallet")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "balance": self.total_value,
+            "currency_id": self.currency_id
         }
