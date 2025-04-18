@@ -2,20 +2,18 @@ import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
 import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
-
+import { useNavigate } from "react-router-dom";
 
 
 
 export const Home = () => {
 	const { store, actions } = useContext(Context);
 	const [user, setUser] = useState(null); // Estado para controlar el usuario logueado
-
+	const navigate = useNavigate ()
 	// Función para simular login (reemplaza con tu lógica real)
 	const handleLogin = () => {
-		setUser({
-			email: "usuario@ejemplo.com",
-			name: "Usuario Demo"
-		});
+		
+		navigate("/dashboard")
 	};
 
 	// Función para logout
@@ -53,22 +51,13 @@ export const Home = () => {
 			) : (
 				/* --- CONTENIDO PÚBLICO (tu código original) --- */
 				<div>
-					<h1>aca debo trabajar inicio</h1>
-					<div className="alert alert-info">
-						{store.message || "Loading message from the backend..."}
-					</div>
+					
 					<button
 						onClick={handleLogin}
 						className="btn btn-primary mb-3"
 					>
 						Acceder al Dashboard
 					</button>
-					<p>
-						This boilerplate comes with lots of documentation:{" "}
-						<a href="https://start.4geeksacademy.com/starters/react-flask">
-							Read documentation
-						</a>
-					</p>
 				</div>
 			)}
 		</div>
