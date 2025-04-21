@@ -6,10 +6,15 @@ import { BackendURL } from "./component/backendURL";
 import { Home } from "./pages/home";
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
+import Login from "./pages/Login.jsx";
 import injectContext from "./store/appContext";
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+import { Dashboard } from "./component/Dashboard.jsx";
+import Signup from "./pages/Signup.jsx";
 
 //create your first component
 const Layout = () => {
@@ -27,12 +32,20 @@ const Layout = () => {
                     <Routes>
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
+                        <Route element={<Dashboard />} path="/dashboard" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element={<h1>Not found!</h1>} />
+                        {/* Login */}
+                        <Route element={<Login/>} path="/login" />
+                        {/* Siguientes rutas */}
+                        <Route element={<Signup/>} path="/signup" />
+
+
                     </Routes>
                     <Footer />
                 </ScrollToTop>
             </BrowserRouter>
+            <ToastContainer />
         </div>
     );
 };
