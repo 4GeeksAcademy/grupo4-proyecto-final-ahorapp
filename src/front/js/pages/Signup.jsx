@@ -10,16 +10,13 @@ const Signup = () => {
 
   const { store, actions } = useContext(Context);
 
-
-
-
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [role, setRole] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
-
 
 
   const handleSubmit = async (e) => {
@@ -34,22 +31,29 @@ const Signup = () => {
       return;
     } else if (password.length < 8) {
       toast.warn("La contrasena debe ser de al menos 8 caracteres 😒")
+      return;
     }
 
     setLoading(true);
-    const success = await actions.signup(name, email, password);
+    const success = await actions.signup(name, email, password, role);
     setLoading(false);
 
     if (success) {
       toast.success("Registrado exitosamente! 😍")
       navigate("/dashboard");
     } else {
-      toast.error("Hubo un error al intetnar crear el usuario 😓");
+      toast.error("Hubo un error al intentar crear el usuario 😓");
       setLoading(false);
 
     }
 
   }
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate('/')
+    }
+  }, [])
 
   return (
     <div className="container d-flex justify-content-center align-items-center mt-5">
@@ -123,6 +127,14 @@ const Signup = () => {
                 value={confirmPassword}
                 onChange={(e) => { setConfirmPassword(e.target.value) }}
               />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="role" className="form-label">Rol de usuario</label>
+              <select className="form-select" id="role" name="role" onChange={(e)=>{setRole(e.target.value)}}>
+                <option value="" disabled>Selecciona un rol</option>
+                <option value="user">Usuario</option>
+                <option value="admin">Administrador</option>
+              </select>
             </div>
 
 

@@ -1,81 +1,112 @@
-# WebApp boilerplate with React JS and Flask API
 
-Build web applications using React.js for the front end and python/flask for your backend API.
+# AhorrApp
 
-- Documentation can be found here: https://start.4geeksacademy.com/starters/react-flask
-- Here is a video on [how to use this template](https://www.loom.com/share/f37c6838b3f1496c95111e515e83dd9b)
-- Integrated with Pipenv for package managing.
-- Fast deployment to heroku [in just a few steps here](https://start.4geeksacademy.com/backend/deploy-heroku-posgres).
-- Use of .env file.
-- SQLAlchemy integration for database abstraction.
+AhorrApp es una aplicación web que te ayuda a gestionar tus gastos, estableciendo metas de ahorro y realizando un seguimiento de tus finanzas personales. Está construida con **React.js** para el frontend y **Flask** con **SQLAlchemy** para el backend API.
 
-### 1) Installation:
+## Características
 
-> If you use Github Codespaces (recommended) or Gitpod this template will already come with Python, Node and the Posgres Database installed. If you are working locally make sure to install Python 3.10, Node 
+- **Frontend con React.js**: Una interfaz dinámica y fácil de usar para gestionar tus finanzas.
+- **Backend con Flask**: API RESTful para manejar los datos de los usuarios, sus gastos, y sus metas de ahorro.
+- **Base de datos con SQLAlchemy**: Abstracción de base de datos que te permite almacenar y gestionar datos de manera eficiente.
+- **Gestión de usuarios**: Permite la creación de usuarios y autenticación para el seguimiento personalizado.
+- **Integración con Pipenv**: Gestión de dependencias Python.
+- **Despliegue rápido a Heroku**: Implementación simple de la aplicación en Heroku.
 
-It is recomended to install the backend first, make sure you have Python 3.8, Pipenv and a database engine (Posgress recomended)
+## Documentación
 
-1. Install the python packages: `$ pipenv install`
-2. Create a .env file based on the .env.example: `$ cp .env.example .env`
-3. Install your database engine and create your database, depending on your database you have to create a DATABASE_URL variable with one of the possible values, make sure you replace the valudes with your database information:
+[Documentación de inicio](https://start.4geeksacademy.com/starters/react-flask)  
+[Video tutorial de uso](https://www.loom.com/share/f37c6838b3f1496c95111e515e83dd9b)
 
-| Engine    | DATABASE_URL                                        |
-| --------- | --------------------------------------------------- |
-| SQLite    | sqlite:////test.db                                  |
-| MySQL     | mysql://username:password@localhost:port/example    |
-| Postgress | postgres://username:password@localhost:5432/example |
+## Instalación
 
-4. Migrate the migrations: `$ pipenv run migrate` (skip if you have not made changes to the models on the `./src/api/models.py`)
-5. Run the migrations: `$ pipenv run upgrade`
-6. Run the application: `$ pipenv run start`
+### Backend (Flask)
 
-> Note: Codespaces users can connect to psql by typing: `psql -h localhost -U gitpod example`
+1. **Instalar Python 3.10 y Pipenv**:
+   Si no tienes Python 3.10 y Pipenv instalados, instálalos en tu máquina local. Puedes instalar Pipenv con el siguiente comando:
 
-### Undo a migration
+   ```bash
+   pip install pipenv
+   ```
 
-You are also able to undo a migration by running
+2. **Instalar las dependencias de Python**:
+   Una vez que tengas el entorno preparado, instala las dependencias del backend:
 
-```sh
-$ pipenv run downgrade
-```
+   ```bash
+   pipenv install
+   ```
 
-### Backend Populate Table Users
+3. **Configurar variables de entorno**:
+   Crea un archivo `.env` a partir del ejemplo `.env.example`:
 
-To insert test users in the database execute the following command:
+   ```bash
+   cp .env.example .env
+   ```
 
-```sh
-$ flask insert-test-users 5
-```
+   Luego, configura la variable `DATABASE_URL` para tu base de datos, dependiendo de cuál estés usando:
 
-And you will see the following message:
+   - **SQLite**: `sqlite:///test.db`
+   - **MySQL**: `mysql://usuario:contraseña@localhost:puerto/ejemplo`
+   - **PostgreSQL**: `postgres://usuario:contraseña@localhost:5432/ejemplo`
 
-```
-  Creating test users
-  test_user1@test.com created.
-  test_user2@test.com created.
-  test_user3@test.com created.
-  test_user4@test.com created.
-  test_user5@test.com created.
-  Users created successfully!
-```
+4. **Migrar la base de datos**:
+   Si has hecho cambios en los modelos (en `./src/api/models.py`), ejecuta las migraciones:
 
-### **Important note for the database and the data inside it**
+   ```bash
+   pipenv run migrate
+   pipenv run upgrade
+   ```
 
-Every Github codespace environment will have **its own database**, so if you're working with more people eveyone will have a different database and different records inside it. This data **will be lost**, so don't spend too much time manually creating records for testing, instead, you can automate adding records to your database by editing ```commands.py``` file inside ```/src/api``` folder. Edit line 32 function ```insert_test_data``` to insert the data according to your model (use the function ```insert_test_users``` above as an example). Then, all you need to do is run ```pipenv run insert-test-data```.
+5. **Ejecutar la aplicación**:
+   Para iniciar el servidor backend, corre el siguiente comando:
 
-### Front-End Manual Installation:
+   ```bash
+   pipenv run start
+   ```
 
--   Make sure you are using node version 14+ and that you have already successfully installed and runned the backend.
+### Frontend (React)
 
-1. Install the packages: `$ npm install`
-2. Start coding! start the webpack dev server `$ npm run start`
+1. **Instalar Node.js**:
+   Asegúrate de tener **Node.js versión 14+** instalada en tu máquina.
 
-## Publish your website!
+2. **Instalar las dependencias de frontend**:
+   Entra al directorio del frontend y ejecuta:
 
-This boilerplate it's 100% read to deploy with Render.com and Heroku in a matter of minutes. Please read the [official documentation about it](https://start.4geeksacademy.com/deploy).
+   ```bash
+   npm install
+   ```
 
-### Contributors
+3. **Iniciar el servidor de desarrollo**:
+   Una vez instaladas las dependencias, ejecuta el servidor de desarrollo con:
 
-This template was built as part of the 4Geeks Academy [Coding Bootcamp](https://4geeksacademy.com/us/coding-bootcamp) by [Alejandro Sanchez](https://twitter.com/alesanchezr) and many other contributors. Find out more about our [Full Stack Developer Course](https://4geeksacademy.com/us/coding-bootcamps/part-time-full-stack-developer), and [Data Science Bootcamp](https://4geeksacademy.com/us/coding-bootcamps/datascience-machine-learning).
+   ```bash
+   npm run start
+   ```
 
-You can find other templates and resources like this at the [school github page](https://github.com/4geeksacademy/).
+## Despliegue
+
+### Despliegue en Heroku
+
+Este proyecto está listo para ser desplegado en **Heroku** con tan solo unos pocos pasos. Sigue la documentación oficial para desplegar tu app en la plataforma.
+
+1. Crea una cuenta en [Heroku](https://www.heroku.com/).
+2. Instala el [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli).
+3. Sigue los pasos en la documentación oficial para crear una aplicación y conectarla con tu repositorio.
+
+## Contribuciones
+
+**Contribuyentes:**
+
+- **Jose Luis Nuñez**
+- **Juan Salazar**
+- **Rafael Vargas**
+- **Federico Serron**
+
+Este proyecto fue desarrollado como parte del aprendizaje en el desarrollo de aplicaciones Full Stack. ¡Contribuciones son bienvenidas! Si encuentras algún error o tienes una idea para mejorar la aplicación, no dudes en hacer un **Pull Request**.
+
+## Licencia
+
+Este proyecto está bajo la licencia MIT.
+
+---
+
+**AhorrApp** es una solución sencilla pero potente para ayudarte a tener el control de tus finanzas personales y ahorrar de manera efectiva. ¡Empecemos a ahorrar juntos!

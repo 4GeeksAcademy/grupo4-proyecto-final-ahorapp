@@ -1,0 +1,7 @@
+1 - cambiar la env variable para que apunte a MySQL y crear base de datos en mysql
+2- definirle cual es el python que estoy usando
+3- tirar commandos pipenv shell y pipenv install
+4 - tirar commandos pipenv install mysqlclient y pipenv install colorama
+5 - tirar commandos pipenv run upgrade luego pipenv run migrate y luego otra vez pipenv run upgrade
+6 - copio url del backend y la pego en archive .env
+7 - npm run start

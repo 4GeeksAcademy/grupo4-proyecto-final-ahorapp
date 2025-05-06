@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import logo from "../../img/logo.png";
 import { Context } from "../store/appContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -31,6 +31,12 @@ const Login = () => {
       toast.error("Correo o contraseña incorrectos 😓");
     }
   };
+
+  useEffect(()=>{
+      if (localStorage.getItem("token")) {
+          navigate('/dashboard')
+      }
+  },[])
 
   return (
     <div className="container d-flex justify-content-center align-items-center mt-5">

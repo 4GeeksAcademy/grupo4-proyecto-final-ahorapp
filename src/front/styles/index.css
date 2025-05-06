@@ -2,7 +2,60 @@
     General Styles used on every website (Don't Repeat Yourself)
 */
 
-btn-login{
-    padding-left: 2.5rem; 
+.btn-login {
+    padding-left: 2.5rem;
     padding-right: 2.5rem;
+}
+
+
+/* Boton para agregar registros */
+.btn-custom {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: white;
+    border: none;
+    transition: 0.3s ease-in-out;
+}
+
+.btn-custom:hover {
+    filter: brightness(1.2);
+}
+
+.form-control:focus {
+    border-color: #6610f2;
+    box-shadow: 0 0 0 0.25rem rgba(102, 16, 242, 0.25);
+}
+
+
+/* NavBar */
+.animated-navbar {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.fade-slide {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.delete-fa {
+    color: red;
+    display: none;
+}
+
+tr:hover .delete-fa {
+    display: inline;
+    cursor: pointer;
+}
+
+/* Wallet Cards */
+.border-neon {
+    border: 2px solid red !important;
+    box-shadow: 0 0 10px red;
+    border-radius: 0.375rem;
+
 }
