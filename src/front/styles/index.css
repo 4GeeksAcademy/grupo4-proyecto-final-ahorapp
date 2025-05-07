@@ -69,3 +69,25 @@ tr:hover .delete-fa {
 body[data-bs-theme='light'] .btn-danger:hover {
     color: white;
 }
+
+  .background-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background-image: radial-gradient(rgba(0, 128, 0, 0.2) 2px, transparent 2px);
+    background-size: 50px 50px;
+    animation: moveBackground 20s linear infinite;
+    z-index: 0;
+  }
+
+  @keyframes moveBackground {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 100px 100px;
+    }
+  }
+  

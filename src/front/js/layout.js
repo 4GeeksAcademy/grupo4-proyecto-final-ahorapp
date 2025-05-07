@@ -40,7 +40,7 @@ const Layout = () => {
     }, []);
 
     return (
-        <div>
+        <div className="background-animation">
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
                     <Navbar />
