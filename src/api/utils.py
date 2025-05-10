@@ -1,15 +1,23 @@
 from flask import jsonify, url_for
 from datetime import datetime, timezone
-from .models import User
+from .models import User, Category
 import requests
+from dotenv import load_dotenv
+import openai
 import os
 import re
 import unicodedata
+
+load_dotenv()
 
 # paypal configuration
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_SECRET = os.getenv("PAYPAL_SECRET")
 PAYPAL_BASE_URL = os.getenv("PAYPAL_BASE_URL")
+
+# OpenAi
+OPEN_AI_KEY = os.getenv("OPEN_AI")
+
 
 class APIException(Exception):
     status_code = 400
@@ -148,3 +156,40 @@ def parse_record_input(input_text: str, categories: dict[str, list[str]]) -> dic
         "category": matched_category,
         "description": " ".join(words)
     }
+
+
+def categorize_with_ai(description):
+    
+    client = openai.OpenAI(api_key=OPEN_AI_KEY)
+    valid_categories = [cat.serialize().get('name') for cat in Category.query.all()]
+    
+    try:
+        # valid_categories = [
+        #     "Restaurante", "Supermercado", "Transporte", "Vivienda", "Entretenimiento",
+        #     "Salud", "Educacion", "Compras", "Deporte", "Finanzas", "Mascotas", "Viajes", "Otros"
+        # ]
+        
+        categories_str = ", ".join(valid_categories)
+
+        prompt = (
+            f"Por favor, clasifica este gasto en una sola palabra como categoría. "
+            f"Posibles categorías son: '{categories_str}'\n\n"
+            f"Descripción: '{description}'"
+        )
+
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=5,
+            temperature=0.2,
+        )
+
+        categoria = response.choices[0].message.content.strip().capitalize()
+
+        if categoria in valid_categories:
+            return categoria
+        else:
+            return "General"
+    except Exception as e:
+        print(f"Error al categorizar con IA:\n\n{e}")
+        return "General"

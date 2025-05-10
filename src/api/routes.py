@@ -5,7 +5,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 import os
 from api.models import db, User, Record, Category, Wallet, Goal, Currency
-from api.utils import generate_sitemap, APIException, validate_relationships, validate_required_fields, parse_date, check_user_is_admin, get_access_token, parse_record_input
+from api.utils import generate_sitemap, APIException, validate_relationships, validate_required_fields, parse_date, check_user_is_admin, get_access_token, parse_record_input, categorize_with_ai
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
@@ -363,23 +363,21 @@ def add_record():
         if error_relationships:
             return error_relationships
 
-        selected_category = Category.query.filter_by(
-            name=fields.get("category_name")
-        ).first()
-
-        if not selected_category:
-            general_cat = Category.query.filter_by(name="General").first()
-            if not general_cat:
-                general_cat = Category(name="General", description="Categoria por defecto")
-                db.session.add(general_cat)
+        category = Category.query.filter_by(name=categorize_with_ai(fields["description"])).first()
+        
+        if not category:
+            category = Category.query.filter_by(name="General").first()
+            if not category:
+                category = Category(name="General", description="Categoria por defecto")
+                db.session.add(category)
                 db.session.flush()
-            selected_category = general_cat
+                
 
         new_record = Record(
             description=fields["description"],
             amount=fields["amount"],
             type=fields["type"],
-            category_id=selected_category.id,
+            category_id=category.id,
             wallet_id=fields["wallet_id"],
             user_id=user_id,
         )
