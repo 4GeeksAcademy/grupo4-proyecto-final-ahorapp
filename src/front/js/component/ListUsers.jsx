@@ -2,6 +2,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Context } from "../store/appContext";
 import ConfirmModal from './ConfrimModal.jsx';
 import { toast } from "react-toastify";
+import SpinnerLogo from "./SpinnerLogo.jsx";
+
 
 const ListUsers = () => {
     const { store, actions } = useContext(Context);
@@ -14,11 +16,11 @@ const ListUsers = () => {
 
         const response = await actions.deleteUser(id);
 
-        if(response == "403"){
+        if (response == "403") {
             toast.error("No puedes eliminar tu propio usuario")
             return;
         }
-
+        
         if (!response) {
             toast.error("No se pudo eliminar el usuario")
             return;
@@ -27,17 +29,16 @@ const ListUsers = () => {
             setUsers(store.users)
         }
 
-
     }
 
     useEffect(() => {
         const fetchUsers = async () => {
             const response = await actions.getUsers();
             if (!response) {
-                 console.log("No se pudieron traer los usuarios desde la BD.")
-                 setLoading(false)
-                 return users;
-             }
+                console.log("No se pudieron traer los usuarios desde la BD.")
+                setLoading(false)
+                return users;
+            }
 
             setUsers(store.users)
             setLoading(false)
@@ -50,7 +51,7 @@ const ListUsers = () => {
     return (
         <div className="container mt-4">
             <h2 className="mb-4">Lista de Usuarios</h2>
-            <div className="table-responsive">
+            <div className="table-responsive card p-3 shadow rounded-2">
                 <table className="table table-hover table-bordered align-middle">
                     <thead className="table-dark">
                         <tr>
@@ -66,11 +67,7 @@ const ListUsers = () => {
                         {loading ? (
                             <tr>
                                 <td colSpan="6">
-                                    <div className="d-flex justify-content-center my-3">
-                                        <div className="spinner-border text-primary" role="status">
-                                            <span className="visually-hidden">Cargando...</span>
-                                        </div>
-                                    </div>
+                                    <SpinnerLogo />
                                 </td>
                             </tr>
                         ) : (

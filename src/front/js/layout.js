@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
 import { BackendURL } from "./component/backendURL";
@@ -21,18 +21,23 @@ import Unauthorized from "./pages/Unauthorized.jsx"
 import ListUsers from "./component/ListUsers.jsx";
 import AdminLayout from "./component/AdminLayout.jsx";
 import ListCategories from "./component/ListCategories.jsx";
-import HandleUpdateUser from "./component/HandleUpdateUser.jsx"; 
+import HandleUpdateUser from "./component/HandleUpdateUser.jsx";
 import PayPalSuccess from "./pages/PayPalSuccess.jsx";
 import PayPalCancel from "./pages/PayPalCancel.jsx";
 import WalletDetail from "./pages/WalletDetail.jsx";
-
+import { Context } from "./store/appContext";
 //create your first component
 const Layout = () => {
     //the basename is used when your project is published in a subdirectory and not in the root of the domain
     // you can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
     const basename = process.env.BASENAME || "";
+    const { actions } = useContext(Context);
 
     if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL />;
+
+    useEffect(() => {
+        actions.initTheme();
+    }, []);
 
     return (
         <div>
@@ -61,7 +66,7 @@ const Layout = () => {
                         {/* Siguientes rutas */}
 
                         {/* Editar Usuario */}
-                        <Route path="/edit-user" element={<HandleUpdateUser />} /> 
+                        <Route path="/edit-user" element={<HandleUpdateUser />} />
 
                         <Route element={<Signup />} path="/signup" />
                         <Route element={<AddRecord />} path="/records/add" />

@@ -3,6 +3,7 @@ import React, { useEffect, useContext, useState } from "react";
 import { Context } from "../store/appContext";
 import { useParams } from "react-router-dom";
 import ListRecord from "../component/ListRecord.jsx";
+import SpinnerLogo from "../component/SpinnerLogo.jsx";
 
 
 const WalletDetail = () => {
@@ -36,11 +37,7 @@ const WalletDetail = () => {
               <h5 className="card-title fs-4 text-primary">Saldo Actual</h5>
               {loading ? (
 
-                    <div className="d-flex mx-auto justify-content-center my-3">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Cargando...</span>
-                      </div>
-                    </div>
+                <SpinnerLogo />
               ) : (
                 <h2 className="display-5 fw-bold">
                   ${store.wallets_from_user.find(wallet => wallet.id === parseInt(wallet_id))?.balance?.toFixed(2) || "0.00"}
@@ -52,7 +49,7 @@ const WalletDetail = () => {
           </div>
 
           <h4 className="mb-3 text-center text-md-start">Historial de Movimientos</h4>
-              <ListRecord/>
+          <ListRecord />
         </div>
       </div>
     </div>

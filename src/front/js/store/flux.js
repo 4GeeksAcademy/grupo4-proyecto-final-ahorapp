@@ -81,6 +81,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					symbol: "Br"
 				}
 			],
+			theme: localStorage.getItem("theme") || "light",
 			//Info de Usuario actualmente logeado
 			logged_user: [],
 			//Listado de todos los usuarios de la plataforma
@@ -134,6 +135,22 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
+			},
+			initTheme: () => {
+				
+				const store = getStore();
+
+				const storedTheme = localStorage.getItem("theme") || "light";
+				setStore({...store, theme: storedTheme });
+				document.body.setAttribute("data-bs-theme", storedTheme);
+			},
+
+			setTheme: (newTheme) => {
+				const store = getStore();
+
+				setStore({...store, theme: newTheme });
+				localStorage.setItem("theme", newTheme);
+				document.body.setAttribute('data-bs-theme', newTheme);
 			},
 
 			login: async (email, password) => {
@@ -313,6 +330,86 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 
+			// Edita un registro
+			editRecord: async (editId, description, amount, cat_id) => {
+				const URLeditRecord = `${apiUrl}/api/records/edit/${editId}`;
+				const store = getStore();
+
+				try {
+					if (!description && !amount && !cat_id) {
+						console.log("No hay nada para editar");
+						return false;
+					}
+
+					const editData = {};
+					if (description !== undefined) editData.description = description;
+					if (amount !== undefined) editData.amount = amount;
+					if (cat_id !== undefined) editData.category_id = cat_id;
+					
+					const response = await fetch(URLeditRecord, {
+						method: "PUT",
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem('token')}`,
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(editData)
+					});
+
+					if (!response.ok) {
+						console.log("La respuesta no fue 200, ", response.status)
+						return false;
+					}
+					const data = await response.json()
+
+					setStore({...store, records: store.records.map(record =>
+						record.id === editId ? data : record
+					)})
+					return true
+
+				} catch (error) {
+					console.log("Error en flux function")
+					return false
+				}
+
+			},
+
+			//Elimina un registro
+			deleteRecord : async (recordId)=>{
+				const urlDeleteRecord = `${apiUrl}/api/records/delete/${recordId}`;
+				const store = getStore();
+
+				try {
+					if (!recordId) {
+						console.error("Falta el ID para eliminar.");
+						return false;
+					}
+
+					const response = await fetch(urlDeleteRecord, {
+						method: "DELETE",
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem('token')}`
+						}
+					});
+
+					if (!response.ok) {
+						const errorData = await response.json();
+						console.error("Error al eliminar la Meta:", errorData?.msg || response.statusText);
+						return false;
+					}
+
+					setStore({
+						...store,
+						records: store.records.filter(record => record.id !== recordId)
+					});
+
+					return true;
+
+				} catch (error) {
+					console.error("Hubo un error al eliminar el registro :", error);
+					return false;
+				}
+			},
+
 
 			// Action Get Mostrar Usuario Por ID 
 			getUser: async () => {
@@ -404,6 +501,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 						})
 					});
 
+					if(response.status == "403"){
+						return "403";
+					}
+						
 
 					if (!response.ok) {
 						const errorData = await response.json();
@@ -500,9 +601,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						console.error("Error al eliminar la Meta:", errorData?.msg || response.statusText);
 						return false;
 					}
-
-
-
 
 					setStore({
 						...store,
@@ -879,7 +977,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 					const data = await result.json()
 
-					setStore({...getStore(), users:[...getStore().users, ...data]})
+					setStore({...getStore(), users: data})
 					console.log(getStore().users)
 					return true
 	

@@ -6,16 +6,12 @@ import AddWallet from "./AddWallet.jsx";
 import AddRecord from "./AddRecord.jsx"
 import { Context } from "../store/appContext";
 import ConfirmModal from "./ConfrimModal.jsx";
+import LinesChart from "./LinesChart.jsx";
+import BarsChart from "./BarsChart.jsx";
+import SavingsGoals from "./SavingsGoals.jsx"
 
 const Dashboard = () => {
 
-    /*
-    ⚠️ Importante: el componente HandleUpdateUser necesita que se llame a actions.getUser() antes de renderizarse, para poder llenar correctamente el formulario con los datos del usuario.
-    
-    Actualmente, esa llamada está en el useEffect del componente Dashboard (justo debajo de este comentario).
-    
-    ✅ Si mueves el botón o renderizas HandleUpdateUser en otro lugar, asegúrate de incluir este useEffect completo para que el botón funcione correctamente y se cargue la información del usuario.
-    */
 
     const navigate = useNavigate()
     const { store, actions } = useContext(Context);
@@ -49,36 +45,18 @@ const Dashboard = () => {
     return (
         <div className="container my-3">
             <div id="header" className="">
-                <h1>Dashboard User</h1>
-                <h3>Convertirse en Premium!</h3>
 
-                {/* Botón para navegar a HandleUpdateUser */}
-                <button
-                    className="btn btn-primary"
-                    style={{ width: "200px" }}
-                    onClick={() => navigate("/edit-user")}
-                >
-                    Editar Usuario
-                </button>
-
+                <h1>Bienvenid@ {store.currentUser.name} {store.currentUser.is_premium ? <i className="fas fa-gem " style={{ color: "gold" }} title="Usuario Premium"></i> : ""}</h1>
+                {store.currentUser.is_premium != true ? (
                 <div className="row">
-                    <div className="col-3">
-                        <PayPalBtn />
-                    </div>
-                    <div className="col-2 mt-4">
-                        <AddWallet />
-                    </div>
-
-
-
-
-
+                <h3 className="col-3 mt-3">Aun no eres Premium?</h3>
+                <div className="col-3 ">
+                    <PayPalBtn />
                 </div>
-
-
+            </div>
+                ) : ""}
 
             </div>
-
             <div className="row">
                 {store.wallets_from_user && store.wallets_from_user.length > 0 ? (
                     store.wallets_from_user.map((wallet) => (
@@ -86,7 +64,7 @@ const Dashboard = () => {
                             setSelectedWalletId(wallet.id);
                             localStorage.setItem("selected_wallet", wallet.id);
                             console.log(selectedWalletId)
-                        }} className="col-lg-3 col-sm-4 col-sm-6 mb-3" key={wallet.id}>
+                        }} className="col-lg-3 col-sm-4 col-sm-6 my-3" key={wallet.id}>
                             <WalletCard
                                 id={wallet.id}
                                 balance={wallet.balance}
@@ -97,20 +75,23 @@ const Dashboard = () => {
                             />
                         </div>
                     ))
-                ) : (
-                    <div className="col-3">
-                        <p>No tienes wallets</p>
+                ) : ""}
+                    <div className="col-2 mt-4">
                         <AddWallet />
                     </div>
-                )}
+
             </div>
 
             <div className="row">
                 <div className="col-lg-6 col-md-12">
                     <AddRecord />
+                    <SavingsGoals/>
                 </div>
                 <div className="text-center align-items-center my-auto col-lg-6 col-md-12">
-                    Meter grafiquitas aca
+                    <div className="row">
+                    <LinesChart />
+                    <BarsChart />
+                    </div>
                 </div>
             </div>
             <ConfirmModal

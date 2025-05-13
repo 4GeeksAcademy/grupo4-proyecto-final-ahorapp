@@ -14,7 +14,7 @@ export const Home = () => {
 
 		{/* Hero */}
 		<section className="text-center mb-5">
-			<h2 className="display-4 fw-bold text-dark mb-3">Tomá el control de tu dinero</h2>
+		<h2 className="display-4 fw-bold mb-3" style={{ color: "var(--bs-heading-color)" }}>Tomá el control de tu dinero</h2>
 			<p className="lead text-muted mb-4">
 				Organizá tus gastos, ahorrá inteligentemente y alcanzá tus metas financieras con AhorrApp.
 			</p>

@@ -82,11 +82,11 @@ const AddRecord = () => {
         <div className="container mt-4">
             <div className="row d-flex">
                 <ListRecord />
-                <h3 className="mt-3">Tienes ${totalValueWallet} disponibles</h3>
+                {/* <h3 className="mt-3">Tienes ${totalValueWallet} disponibles</h3>Se quita esto por ahora dado que las currencies son diferentes */}
             </div>
             <div className="row d-flex">
                 <h5 className="my-3">Ingresa tu registro</h5>
-                <div className="input-group col-4">
+                <div className="input-group col-4 ">
                     <button onClick={() => { handleRecord(inputValue, store.categories) }} className="btn btn-custom" type="button">
                         ➕
                     </button>
@@ -94,7 +94,7 @@ const AddRecord = () => {
                         onChange={(e) => { setInputValue(e.target.value) }}
                         onKeyDown={(e)=>{e.key === "Enter" ? handleRecord(inputValue, store.categories) : ""}}
                         type="text"
-                        className="form-control"
+                        className="form-control card shadow rounded-2"
                         placeholder="-250 comida con la banda"
                         value={inputValue}
                     />

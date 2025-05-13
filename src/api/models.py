@@ -78,7 +78,7 @@ class Record(db.Model):
 
 class Category(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
     description: Mapped[str] = mapped_column(String(120), nullable=False)
 
     records: Mapped[list["Record"]] = relationship(back_populates="category")

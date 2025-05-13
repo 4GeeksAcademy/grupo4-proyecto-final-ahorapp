@@ -1,6 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import SpinnerLogo from "./SpinnerLogo.jsx";
+
 
 
 const ListRecord = () => {
@@ -9,6 +12,57 @@ const ListRecord = () => {
     const { wallet_id } = useParams();
     let records = store.records
     const [loading, setLoading] = useState(true)
+    const [categories, setCategories] = useState([]);
+
+    const [editId, setEditId] = useState(null);
+    const [description, setDescription] = useState(null)
+    const [amount, setAmount] = useState(null);
+    const [cat_id, setCat_id] = useState(null)
+
+    const handleEditRecord = async (editId, description, amount, cat_id) => {
+        try {
+            console.log(editId, description, amount, cat_id)
+            const response = await actions.editRecord(editId, description, amount, cat_id)
+
+            if (response) {
+                toast.success("Registro editado correctamente")
+                cleanUpState();
+                return
+
+            } else {
+                toast.error("No se pudo editar el registro")
+                cleanUpState();
+                return;
+
+            }
+        } catch (error) {
+            toast.error("Error, algo salio mal en el componente")
+            cleanUpState();
+
+
+        }
+    }
+
+    const cleanUpState = () => {
+        setEditId(null);
+        setDescription(null);
+        setAmount(null);
+        setCat_id(null);
+
+    }
+
+
+    const handleDeleteRecord = async (recordId) => {
+        const result = await actions.deleteRecord(recordId)
+
+        if(result){
+            toast.success("Registro eliminado correctamente");
+            return;
+        }else{
+            toast.error("No se pudo eliminar el registro")
+            return;
+        }
+    }
 
     useEffect(() => {
 
@@ -25,17 +79,41 @@ const ListRecord = () => {
         }
 
         fetchRecords();
-        setLoading(false);
 
 
         return () => {
             isMounted = false;
         }
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await actions.getCategories();
+
+                if (!data) {
+                    console.log("No hay categorias")
+                    setLoading(false)
+                    return;
+                }
+
+                setCategories(store.categories_db)
+                setLoading(false)
+                return;
+
+            } catch (error) {
+                console.error(`Hubo un error al intentar traer las categorias: ${error}`)
+                setLoading(false)
+            }
+        }
+
+        fetchCategories()
+    }, []);
+
     return (
-        <div>
+        <div className="">
             <h2>Registros</h2>
-            <div className="table-responsive">
+            <div className="table-responsive card p-3 shadow rounded-2">
                 <table className="table table-striped table-bordered table-hover">
                     <thead className="table-dark">
                         <tr>
@@ -44,28 +122,88 @@ const ListRecord = () => {
                             <th>Monto</th>
                             <th>Categoria</th>
                             <th>Fecha</th>
+                            <th></th>
+
                         </tr>
                     </thead>
                     <tbody>
-                        {loading && (
+                        {loading ? (
                             <tr>
-                                <td colSpan="4">
-                                    <div className="d-flex justify-content-center mx-auto my-3">
-                                        <div className="spinner-border text-primary" role="status">
-                                            <span className="visually-hidden">Cargando...</span>
-                                        </div>
-                                    </div>
+                                <td colSpan="5">
+                                    <SpinnerLogo />
                                 </td>
                             </tr>
-                        )}
-                        {records && records.length > 0 ? (
-                            records.map((record, index) => (
-                                <tr key={index}>
+                        ) : store.records.length > 0 ? (
+                            store.records.map((record, index) => (
+                                <tr key={record.id}>
                                     <td>{index + 1}</td>
-                                    <td>{record.description}</td>
-                                    <td className={record.amount < 0 ? "text-danger" : "text-success"}>${parseFloat(record.amount).toFixed(2)}</td>
-                                    <td>{record.category.name}</td>
-                                    <td>{new Date(record.timestamp).toLocaleString("es-UY")}</td>
+                                    {editId === record.id ? (
+                                        <>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    defaultValue={record.description}
+                                                    onChange={(e) => { setDescription(e.target.value) }}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    defaultValue={record.amount}
+                                                    onChange={(e) => { setAmount(e.target.value) }}
+                                                />
+                                            </td>
+                                            <td>
+                                                <select className="form-select" defaultValue={record.category.id} onChange={(e) => { setCat_id(e.target.value) }}>
+                                                    {store.categories_db.map((cat, i) => (
+                                                        <option key={i} value={cat.id}>
+                                                            {cat.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                            <td>{new Date(record.timestamp).toLocaleString("es-UY")}</td>
+                                            <td>
+                                                <button
+                                                    className="btn"
+                                                    role="button"
+                                                    onClick={() => {
+                                                        handleEditRecord(editId, description, amount, cat_id)
+                                                    }}
+                                                >
+                                                    ✅
+                                                </button>
+                                                <button className="btn" role="button"
+                                                    onClick={() => cleanUpState()}
+                                                >
+                                                    ❌
+                                                </button>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td>{record.description}</td>
+                                            <td className={record.amount < 0 ? "text-danger" : "text-success"}>
+                                                ${parseFloat(record.amount).toFixed(2)}
+                                            </td>
+                                            <td>{record.category.name}</td>
+                                            <td>{new Date(record.timestamp).toLocaleString("es-UY")}</td>
+                                            <td>
+                                                <i
+                                                    className="fas fa-trash me-3 text-danger"
+                                                    role="button"
+                                                    onClick={() => handleDeleteRecord(record.id)}
+                                                />
+                                                <i
+                                                    className="fas fa-pen text-primary"
+                                                    role="button"
+                                                    onClick={() => setEditId(record.id)}
+                                                />
+                                            </td>
+                                        </>
+                                    )}
                                 </tr>
                             ))
                         ) : (

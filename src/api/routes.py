@@ -5,18 +5,21 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 import os
 from api.models import db, User, Record, Category, Wallet, Goal, Currency
-from api.utils import generate_sitemap, APIException, validate_relationships, validate_required_fields, parse_date, check_user_is_admin, get_access_token
+from api.utils import generate_sitemap, APIException, validate_relationships, validate_required_fields, parse_date, check_user_is_admin, get_access_token, parse_record_input, categorize_with_ai
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
+from twilio.rest import Client
+from .categories_dict import categories
 from datetime import timedelta, timezone, datetime
 import requests
 
 api = Blueprint("api", __name__)
 
 bcrypt = Bcrypt()
+
 
 # Allow CORS requests to this API
 CORS(api)
@@ -28,6 +31,12 @@ PAYPAL_BASE_URL = os.getenv("PAYPAL_BASE_URL")
 PAYPAL_RETURN_URL = os.getenv("PAYPAL_RETURN_URL")
 PAYPAL_CANCEL_URL = os.getenv("PAYPAL_CANCEL_URL")
 
+# TWILIO CONFIGURATION
+TWILIO_SID=os.getenv("TWILIO_SID")
+TWILIO_TOKEN=os.getenv("TWILIO_TOKEN")
+TWILIO_NUMBER=os.getenv("TWILIO_WPP_NUMBER")
+
+twilio_client = Client(TWILIO_SID, TWILIO_TOKEN)
 
 @api.route("/hello", methods=["POST", "GET"])
 def handle_hello():
@@ -336,13 +345,17 @@ def add_record():
             "description": fields.get("description"),
             "amount": fields.get("amount"),
             "type": fields.get("type"),
-            "category_name": fields.get("category_name"),
+            "category_name": fields.get("category_name", "General"),
             "wallet_id": fields.get("wallet_id"),
         }
+        
 
         error_fields = validate_required_fields(required_fields)
         if error_fields:
             return error_fields
+        
+        if fields["type"] not in ["Ingreso", "Gasto"]:
+            return jsonify({"msg": "El campo 'type' debe ser 'Ingreso' o 'Gasto'."}), 400
 
         error_relationships = validate_relationships(
             {"Wallet": (Wallet, fields.get("wallet_id"))}
@@ -350,21 +363,21 @@ def add_record():
         if error_relationships:
             return error_relationships
 
-        selected_category = Category.query.filter_by(
-            name=fields.get("category_name", "General")
-        ).first()
-
-        if not selected_category:
-            new_cat = Category(name="General", description="Categoria por defecto")
-            db.session.add(new_cat)
-            db.session.commit()
-            selected_category = new_cat
+        category = Category.query.filter_by(name=categorize_with_ai(fields["description"])).first()
+        
+        if not category:
+            category = Category.query.filter_by(name="General").first()
+            if not category:
+                category = Category(name="General", description="Categoria por defecto")
+                db.session.add(category)
+                db.session.flush()
+                
 
         new_record = Record(
             description=fields["description"],
             amount=fields["amount"],
             type=fields["type"],
-            category_id=selected_category.id,
+            category_id=category.id,
             wallet_id=fields["wallet_id"],
             user_id=user_id,
         )
@@ -456,13 +469,13 @@ def edit_record(id):
         if not record:
             return jsonify({"msg": "No se encuentra el registro solicitado"}), 404
 
-        if "description" in data:
+        if "description" in data and data['description'] is not None:
             record.description = data["description"]
-        if "amount" in data:
+        if "amount" in data and data['amount'] is not None:
             record.amount = data["amount"]
-        if "type" in data:
+        if "type" in data and data['type'] is not None:
             record.type = data["type"]
-        if "category_id" in data:
+        if "category_id" in data and data['category_id'] is not None:
             record.category_id = data["category_id"]
 
         db.session.commit()
@@ -621,12 +634,21 @@ def set_goal():
         goal_value = request.json.get("goal_value")
         is_complete = False
 
+        user = User.query.filter_by(id = user_id).first()
+
         if not user_id or not name_goal or not goal_value:
             return jsonify({"msg": "Completar todos los campos solicitados"}), 404
         goal = Goal.query.filter_by(user_id=user_id, name=name_goal).first()
 
         if goal:
             return (jsonify({"msg": "El nombre de Goal ya existe"})), 404
+        
+
+        # Condicion pars verificar que el usuario no es premium y si tiene mas de 3 goals creadas, llego a si lmite de prueba
+        all_goals = Goal.query.filter_by(user_id=user_id).all()
+        if not user.is_premium and len(all_goals) >= 3:
+            return jsonify({'msg': 'El usuario es Free y ya tiene mas de 3 metas creadas'}), 403
+        
 
         new_goal = Goal(
             name=name_goal,
@@ -948,3 +970,59 @@ def delete_user(id):
 #Ruta Jose
 
 #Ruta Fede
+@api.route("/whatsapp/records/add", methods=["POST"])
+def wpp_add_records():
+    try:
+        from_number = request.form.get('From').replace("whatsapp:", "")
+        body = request.form.get('Body')
+
+        if not from_number or not body:
+            return jsonify({"msg": "Faltan datos"}), 400
+
+        user = User.query.filter_by(phone=from_number).first()
+        if not user:
+            return jsonify({"msg": "Usuario no encontrado"}), 400
+
+        wallet = user.wallets[0] if user.wallets else None
+        if not wallet:
+            return jsonify({"msg": "El usuario no tiene wallets"}), 400
+        
+        result = parse_record_input(body, categories)
+        category_id = Category.query.filter_by(name=result.get('category', 'General')).first().id
+        
+        if not category_id:
+            general_cat = Category.query.filter_by(name="General").first()
+            if not general_cat:       
+                general_cat = Category(name="General", description="Categoria por defecto")
+                db.session.add(general_cat)
+                db.session.flush()
+                category_id = general_cat.id
+                
+        wallet.total_value += result['amount']
+
+        new_record = Record(
+            description=result.get('description', 'Empty'),
+            amount=result.get('amount', 1),
+            type="whatsapp",
+            category_id=category_id,
+            wallet_id=wallet.id,
+            user_id=user.id
+        )
+        db.session.add(new_record)
+        db.session.commit()
+        
+        msg = f"✅ Hola {user.name}, tu registro fue agregado exitosamente:\n" \
+          f"- Descripción: {new_record.description}\n" \
+          f"- Monto: {new_record.amount}\n" \
+          f"- Categoría: {result.get('category', 'General')}"
+
+        twilio_client.messages.create(
+            from_=TWILIO_NUMBER,
+            to=f"whatsapp:{from_number}",
+            body=msg
+            )
+
+        return jsonify({"msg": "Registro agregado satisfactoriamente"}), 201
+
+    except Exception as e:
+        return jsonify({"msg": "No se pudo agregar el registro a traves de whatsapp"}), 500

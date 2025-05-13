@@ -28,8 +28,8 @@ const WalletCard = ({ id, balance, name, currency, selectedWallet, onDelete }) =
         </button>
 
         <h5 className="card-title">{name}</h5>
-        <h2 className="display-6 fw-bold">{currency} {balance?.toFixed(2) || "0.00"}</h2>
-        <p onClick={() => { handleWalletDetails(id) }} className="card-title">Ver detalles</p>
+        <h2 className={`display-6 fw-bold  ${id==selectedWallet? "" : "d-none d-md-block"}`}>{currency} {balance?.toFixed(2) || "0.00"}</h2>
+        <p onClick={() => { handleWalletDetails(id) }} className={`card-title ${id==selectedWallet? "" : "d-none d-md-block"}`}>Ver detalles</p>
       </div>
     </div>
   );

@@ -30,7 +30,7 @@ const AddWallet = () => {
             setCurrency("");
             return;
         } else {
-            toast.success(`Billetera ${name} creda exitosamente!`)
+            toast.success(`Billetera ${name} creada exitosamente!`)
             setName("");
             setCurrency("");
             return;

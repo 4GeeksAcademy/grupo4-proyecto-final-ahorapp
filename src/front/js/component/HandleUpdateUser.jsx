@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../store/appContext";
+import { toast } from "react-toastify";
 
 const HandleUpdateUser = () => {
     const { store, actions } = useContext(Context);
@@ -23,7 +24,7 @@ const HandleUpdateUser = () => {
             setFormData({
                 name: store.currentUser.name || "",
                 email: store.currentUser.email || "",
-                password: "", // Nunca mostrar password original
+                password: "",
                 phone: store.currentUser.phone || "",
                 address: store.currentUser.address || ""
             });
@@ -32,7 +33,11 @@ const HandleUpdateUser = () => {
 
     // Manejar clic en actualizar
     const handleUpdateUser = async () => {
-        console.log("🔄 Enviando datos para actualizar usuario:", formData);
+
+        if (formData.email === "" || formData.name === ""){
+            toast.error("No puedes dejar los campos email y nombres vacios.")
+            return;
+        }
 
         try {
             const actualizado = await actions.updateUser(
@@ -46,16 +51,20 @@ const HandleUpdateUser = () => {
             if (actualizado) {
                 console.log("✅ Usuario actualizado correctamente. Refrescando datos...");
                 await actions.getUser(); // Actualizar datos desde el backend
+                toast.success(" Usuario actualizado correctamente");
+
             } else {
-                console.error("❌ Falló la actualización del usuario.");
+                console.error("Falló la actualización del usuario.");
+                toast.error("Falló la actualización del usuario.");
             }
         } catch (error) {
-            console.error("🛑 Error al intentar actualizar usuario:", error);
+            console.error("Error al intentar actualizar usuario:", error);
+            toast.error("Error al intentar actualizar usuario:", error);
         }
     };
 
     return (
-        <div className="card p-3 mt-4">
+        <div className="container w-50 card p-3 mt-4" >
             <h2>Actualizar Usuario</h2>
 
             <input
@@ -64,6 +73,7 @@ const HandleUpdateUser = () => {
                 placeholder="Nombre"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
             />
 
             <input
@@ -72,6 +82,7 @@ const HandleUpdateUser = () => {
                 placeholder="Email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
             />
 
             <input
@@ -85,7 +96,7 @@ const HandleUpdateUser = () => {
             <input
                 className="form-control my-2"
                 type="text"
-                placeholder="Teléfono"
+                placeholder="+598 xxx xxx"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />

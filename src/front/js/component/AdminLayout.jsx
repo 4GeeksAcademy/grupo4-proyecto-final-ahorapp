@@ -98,7 +98,7 @@ const AdminLayout = () => {
       </div>
 
       {/* Contenido principal */}
-      <div className="flex-grow-1 p-4" style={{ background: "#f8f9fa", minHeight: "100vh" }}>
+      <div className="flex-grow-1 p-4" style={{ minHeight: "100vh" }}>
         <Outlet />
       </div>
     </div>

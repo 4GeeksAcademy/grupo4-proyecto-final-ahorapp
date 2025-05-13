@@ -10,6 +10,8 @@ export const Navbar = () => {
 
 	const [isVisible, setIsVisible] = useState(false);
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const currentTheme = store.theme;
+
 	const navigate = useNavigate()
 
 	const handleLogout = () => {
@@ -27,8 +29,9 @@ export const Navbar = () => {
 		setIsLoggedIn(!!localStorage.getItem("token"))
 	}, [])
 
+
 	return (
-		<nav className={`navbar navbar-expand-lg navbar-light bg-light shadow-sm animated-navbar ${isVisible ? "fade-slide" : ""}`}>
+		<nav className={`navbar navbar-expand-lg ${currentTheme === 'dark' ? 'navbar-dark bg-dark' : 'navbar-light bg-light'} shadow-sm animated-navbar ${isVisible ? "fade-slide" : ""}`}>
 			<div className="container">
 				<Link className="navbar-brand text-success fw-bold" to="/">
 					AhorrApp
@@ -44,45 +47,78 @@ export const Navbar = () => {
 				>
 					<span className="navbar-toggler-icon"></span>
 				</button>
+
 				<div className="collapse navbar-collapse" id="navbarNav">
-					<ul className="navbar-nav ms-auto">
-						{localStorage.getItem("token") && (
-							<>
-								<li className="nav-item">
-									<Link className="nav-link" to="/dashboard">Dashboard</Link>
-								</li>
-								<li className="nav-item">
-									<Link className="nav-link" to="/records/add">Registros</Link>
-								</li>
-							</>
-						)}
-						{role === "admin" && (
-							<>
-								<li className="nav-item">
-									<Link className="nav-link" to="/admin">Admin</Link>
-								</li>
-							</>
-						)}
+					<ul className="navbar-nav ms-auto align-items-center">
+
+						{/* Cambiar tema oscuro/claro */}
 						<li className="nav-item">
-							{localStorage.getItem("token") ? (
-								<button className="nav-link btn btn-danger text-white px-3 ms-2" onClick={handleLogout}>
-									Salir
-								</button>
-							) : (
-								<Link className="nav-link" to="/login">Ingresar</Link>
-							)}
+							<button
+								className="btn btn-outline-secondary mx-2"
+								onClick={() => actions.setTheme(currentTheme === "light" ? "dark" : "light")}
+							>
+								{currentTheme === "dark" ? <i className="fas fa-sun" /> : <i className="fas fa-moon" />}
+							</button>
 						</li>
-						{!localStorage.getItem("token") && (
-							<li className="nav-item">
-								<Link className="nav-link btn btn-success text-white px-3 ms-2" to="/signup">
-									Registrarse
-								</Link>
+
+						{localStorage.getItem("token") ? (
+							// Dropdown perfil
+							<li className="nav-item dropdown">
+								<button
+									className="btn nav-link dropdown-toggle d-flex align-items-center"
+									id="userDropdown"
+									data-bs-toggle="dropdown"
+									aria-expanded="false"
+								>
+									<i className="fas fa-user-circle fa-lg me-2" />
+									<span>{store.currentUser.name}</span>
+								</button>
+								<ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+									{store.currentUser?.is_premium && (
+										<li className="dropdown-item">
+											<i className="fas fa-gem me-2" style={{ color: "gold" }} title="Usuario Premium"></i>
+											Premium
+										</li>
+									)}
+									<li className="nav-item">
+										<Link className="dropdown-item" to="/edit-user">Editar Perfil</Link>
+									</li>
+									<li>
+										<Link className="dropdown-item" to="/dashboard">Dashboard</Link>
+									</li>
+									<li>
+										<Link className="dropdown-item" to="/records/add">Registros</Link>
+									</li>
+									{role === "admin" && (
+										<li>
+											<Link className="dropdown-item" to="/admin">Admin</Link>
+										</li>
+									)}
+									<li>
+										<hr className="dropdown-divider" />
+									</li>
+									<li>
+										<button className="dropdown-item text-danger" onClick={handleLogout}>
+											Salir
+										</button>
+									</li>
+								</ul>
 							</li>
+						) : (
+							<>
+								<li className="nav-item">
+									<Link className="nav-link" to="/login">Ingresar</Link>
+								</li>
+								<li className="nav-item">
+									<Link className="nav-link btn btn-register px-3 ms-2" to="/signup">
+										Registrarse
+									</Link>
+								</li>
+							</>
 						)}
 					</ul>
 				</div>
 			</div>
 		</nav>
-
 	);
 };

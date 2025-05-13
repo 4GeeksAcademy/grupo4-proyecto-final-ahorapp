@@ -31,7 +31,6 @@
     opacity: 0;
     transform: translateY(-20px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -58,4 +57,42 @@ tr:hover .delete-fa {
     box-shadow: 0 0 10px red;
     border-radius: 0.375rem;
 
+}
+
+/* Boton de Registrarse */
+.btn-register {
+    background-color: #28a745; 
+    color: white;
+}
+
+/* Boton con clase danger */
+body[data-bs-theme='light'] .btn-danger:hover {
+    color: white;
+}
+
+/* logo girando */
+.image-spinner {
+    width: 6vh;
+    height: 6vh;
+    border-radius: 50%;
+    border: 1px solid  green;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    animation: spin 2s linear infinite;
+    display: inline-block;
+    object-fit: cover; 
+}
+
+/* Animacion */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Envio tablas detras del menu dropdown */
+.table-responsive{
+    position: static;
 }
