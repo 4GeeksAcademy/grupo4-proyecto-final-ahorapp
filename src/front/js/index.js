@@ -5,8 +5,13 @@ import ReactDOM from "react-dom";
 //include your index.scss file into the bundle
 import "../styles/index.css";
 
+
 //import your own components
 import Layout from "./layout";
 
 //render your react application
 ReactDOM.render(<Layout />, document.querySelector("#app"));
+
+// Importa el JavaScript de Bootstrap 
+
+import 'bootstrap/dist/js/bootstrap.bundle.min';

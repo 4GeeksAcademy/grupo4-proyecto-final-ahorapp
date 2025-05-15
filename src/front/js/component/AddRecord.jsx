@@ -33,8 +33,8 @@ const AddRecord = () => {
             .map(removeAccents)
             .map(singularize);
 
-            let matchedCategory = "General";
-            let type = amount < 0 ? "Gasto" : "Ingreso";
+        let matchedCategory = "General";
+        let type = amount < 0 ? "Gasto" : "Ingreso";
 
         for (const [category, keywords] of Object.entries(categories)) {
             if (words.some(word => keywords.includes(word))) {
@@ -46,7 +46,9 @@ const AddRecord = () => {
         console.log(amount, matchedCategory, words.join(" "))
         setInputValue("")
 
-        const response = await actions.addRecord(words.join(" "), amount, type, matchedCategory, localStorage.getItem("selected_wallet"))
+        // const response = await actions.addRecord(words.join(" "), amount, type, matchedCategory, localStorage.getItem("selected_wallet"))
+        const response = await actions.addRecord(inputValue, amount, type, null, localStorage.getItem("selected_wallet"))
+
         if (!response) {
             console.log("Hubo un error al intentar agregar el registro.")
             toast.warn("Debes agregar una breve descripcion y un monto");
@@ -58,7 +60,7 @@ const AddRecord = () => {
 
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         let totalValue = 0
         if (store.wallets_from_user && store.wallets_from_user.length > 0) {
             for (let i = 0; i < store.wallets_from_user.length; i++) {
@@ -67,16 +69,16 @@ const AddRecord = () => {
             setTotalValueWallet(totalValue)
         }
 
-        return ()=>{
+        return () => {
             setTotalValueWallet(0)
         }
     }, [store.records])
 
-    useEffect(()=>{
+    useEffect(() => {
         if (!localStorage.getItem("token")) {
             navigate('/login')
         }
-    },[])
+    }, [])
 
     return (
         <div className="container mt-4">
@@ -92,7 +94,7 @@ const AddRecord = () => {
                     </button>
                     <input
                         onChange={(e) => { setInputValue(e.target.value) }}
-                        onKeyDown={(e)=>{e.key === "Enter" ? handleRecord(inputValue, store.categories) : ""}}
+                        onKeyDown={(e) => { e.key === "Enter" ? handleRecord(inputValue, store.categories) : "" }}
                         type="text"
                         className="form-control card shadow rounded-2"
                         placeholder="-250 comida con la banda"

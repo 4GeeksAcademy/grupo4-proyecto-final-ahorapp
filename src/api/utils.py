@@ -172,8 +172,23 @@ def categorize_with_ai(description):
         categories_str = ", ".join(valid_categories)
 
         prompt = (
-            f"Por favor, clasifica este gasto en una sola palabra como categoría. "
-            f"Posibles categorías son: '{categories_str}'\n\n"
+            f"Sos un asistente que clasifica gastos personales según su descripción. "
+            f"La gente puede escribir en español, inglés, o una mezcla de ambos, usar jerga, emojis o frases coloquiales. "
+            f"Tenés que entender el contexto y elegir **una sola categoría exacta** de esta lista: {categories_str}.\n"
+            f"Respondé únicamente con el nombre exacto de la categoría, sin explicaciones ni texto adicional.\n\n"
+            f"Ejemplos:\n"
+            f"- 'Me patiné 500 pesos en el cine con los pibes' → Entretenimiento\n"
+            f"- 'Bought snacks and soda for movie night' → Supermercado\n"
+            f"- 'Vet visit for Luna, cost me a fortune' → Mascotas\n"
+            f"- 'Pagamos la mensualidad del liceo' → Educacion\n"
+            f"- 'Doctor said it was just stress' → Salud\n"
+            f"- 'Went to the gym 💪 and paid monthly fee' → Deporte\n"
+            f"- 'Lunch at Burger King' → Restaurante\n"
+            f"- 'Ropa nueva en Zara' → Compras\n"
+            f"- 'Paid rent for the apartment' → Vivienda\n"
+            f"- 'Filled up the car with gas' → Transporte\n"
+            f"- 'Transferí plata a la cuenta de ahorro' → Finanzas\n"
+            f"- 'Trip to Colonia con la flia' → Viajes\n\n"
             f"Descripción: '{description}'"
         )
 

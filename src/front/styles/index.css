@@ -96,3 +96,92 @@ body[data-bs-theme='light'] .btn-danger:hover {
 .table-responsive{
     position: static;
 }
+
+/* Side Bar Logo  */
+
+
+.sidebar-logo {
+    width: 50%;
+    height: auto;
+    margin-top: 30px;
+    text-align: center;
+  }
+  
+  .sidebar-logo img.logo {
+    background-color: aliceblue;
+    max-width: 100%;
+    border-radius: 10px;
+  }
+
+
+
+  /* SIDEBAR LINK HOVER ADAPTADO */
+
+/* Estilo base para los links de la sidebar */
+.nav-link.text-white {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #f8f9fa;
+   border-radius: 60px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover */
+.nav-link.text-white:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Activo */
+.nav-link.text-white.active-sidebar-link {
+  background-color: rgba(24, 149, 115);
+  color: #fff;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover en activo */
+.nav-link.text-white.active-sidebar-link:hover {
+  background-color: rgba(0, 77, 64);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Envio tablas detras del menu dropdown en el Admin-Panel */
+
+.nav-item .nav-link {
+  margin-bottom: 8px; 
+  border-radius: 4px;  
+}
+
+
+.nav-link.text-white:active {
+  transform: scale(0.98); 
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2); 
+}
+
+
+.active-sidebar-link i {
+  color: #ffffff;
+  transform: scale(1.1);
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+  
+
+
+.header-info-card {
+  z-index: 0 !important; 
+  position: relative;
+}
+
+.navbar {
+  z-index: 1030 !important;  
+  position: relative;
+}
+
+.dropdown-menu {
+  z-index: 2000 !important;  
+  position: absolute !important;
+}
+
+

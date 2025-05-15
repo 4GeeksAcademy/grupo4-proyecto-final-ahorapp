@@ -345,7 +345,7 @@ def add_record():
             "description": fields.get("description"),
             "amount": fields.get("amount"),
             "type": fields.get("type"),
-            "category_name": fields.get("category_name", "General"),
+            # "category_name": fields.get("category_name", "General"),
             "wallet_id": fields.get("wallet_id"),
         }
         
@@ -811,6 +811,16 @@ def actualizar_usuario():
             if campo == 'password':
                 hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
                 setattr(user, 'password', hashed_password)
+            elif campo == 'phone' and data[campo] != "" and str(data[campo]) != user.phone:
+                msg = f"Bienvenid@ a AhorrApp 😁, ahora puedes ingresar tus registros a traves de Whatsapp!"
+                    
+                setattr(user, 'phone', data[campo])
+                
+                twilio_client.messages.create(
+                from_=TWILIO_NUMBER,
+                to=f"whatsapp:{str(data[campo])}",
+                body=msg
+                )
             else:
                 setattr(user, campo, data[campo] if data[campo] is not None else None)
 
@@ -965,6 +975,54 @@ def delete_user(id):
 
 #Ruta Juan
 
+# Ruta Back-end Calculadora
+
+@api.route("/calculate-savings", methods=["POST"])
+@jwt_required()
+def calculate_savings():
+    data = request.get_json()
+
+    try:
+        ingresos = float(data.get('ingresos', 0))
+        gastos_fijos = float(data.get('gastos_fijos', 0))
+        gastos_variables = float(data.get('gastos_variables', 0))
+        objetivo = float(data.get('objetivo_ahorro', 0)) 
+
+        ahorro = ingresos - (gastos_fijos + gastos_variables)
+        porcentaje_ahorro = (ahorro / ingresos * 100) if ingresos > 0 else 0
+
+        return jsonify({
+            "ahorro": round(ahorro, 2),
+            "porcentaje_ahorro": round(porcentaje_ahorro, 2)
+        }), 200
+
+    except Exception as e:
+        return jsonify({"message": "Error en el cálculo", "error": str(e)}), 400
+
+
+
+# ruta para obtener el conteo total de usuarios
+@api.route("/admin/users/count", methods=["GET"])
+@jwt_required()
+def get_users_count():
+    try:
+        is_not_admin = check_user_is_admin(get_jwt_identity())
+
+        if is_not_admin:
+            return is_not_admin
+
+        total_users_count = User.query.count() 
+
+        return jsonify({"total_users_count": total_users_count}), 200
+
+    except Exception as e:
+        return jsonify({"msg": f"Error al obtener el conteo de usuarios: {e}"}), 500
+
+
+
+
+
+
 #Ruta Rafa
 
 #Ruta Jose
@@ -988,15 +1046,16 @@ def wpp_add_records():
             return jsonify({"msg": "El usuario no tiene wallets"}), 400
         
         result = parse_record_input(body, categories)
-        category_id = Category.query.filter_by(name=result.get('category', 'General')).first().id
         
-        if not category_id:
-            general_cat = Category.query.filter_by(name="General").first()
-            if not general_cat:       
-                general_cat = Category(name="General", description="Categoria por defecto")
-                db.session.add(general_cat)
+        
+        category = Category.query.filter_by(name=categorize_with_ai(body)).first()
+        
+        if not category:
+            category = Category.query.filter_by(name="General").first()
+            if not category:
+                category = Category(name="General", description="Categoria por defecto")
+                db.session.add(category)
                 db.session.flush()
-                category_id = general_cat.id
                 
         wallet.total_value += result['amount']
 
@@ -1004,7 +1063,7 @@ def wpp_add_records():
             description=result.get('description', 'Empty'),
             amount=result.get('amount', 1),
             type="whatsapp",
-            category_id=category_id,
+            category_id=category.id,
             wallet_id=wallet.id,
             user_id=user.id
         )
@@ -1014,7 +1073,7 @@ def wpp_add_records():
         msg = f"✅ Hola {user.name}, tu registro fue agregado exitosamente:\n" \
           f"- Descripción: {new_record.description}\n" \
           f"- Monto: {new_record.amount}\n" \
-          f"- Categoría: {result.get('category', 'General')}"
+          f"- Categoría: {category.name}"
 
         twilio_client.messages.create(
             from_=TWILIO_NUMBER,
@@ -1025,4 +1084,13 @@ def wpp_add_records():
         return jsonify({"msg": "Registro agregado satisfactoriamente"}), 201
 
     except Exception as e:
+        msg = f"✅ Hola, tu registro no pudo agregarse.\n" \
+        f"- Por favor intenta nuevamente. \n" \
+        f"- Detalles: {new_record.amount}, {new_record.description}\n"        
+
+        twilio_client.messages.create(
+            from_=TWILIO_NUMBER,
+            to=f"whatsapp:{from_number}",
+            body=msg)
+        
         return jsonify({"msg": "No se pudo agregar el registro a traves de whatsapp"}), 500

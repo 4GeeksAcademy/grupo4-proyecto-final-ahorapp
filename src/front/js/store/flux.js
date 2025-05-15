@@ -7,7 +7,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			message: null,
-			currentUser:{},
+			currentUser: {},
 			categories: {
 				Restaurante: [
 					"restaurante", "parrillada", "pizzeria", "cafeteria", "bar", "chiviteria",
@@ -102,6 +102,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 			wallets_from_user: [],
 
 			currentWallet: {},
+
+
+			// Para saber solo el conteo de Usuarios 
+			totalUsersCount: null, 
+		
+		
+		
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -137,18 +144,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 				setStore({ demo: demo });
 			},
 			initTheme: () => {
-				
+
 				const store = getStore();
 
 				const storedTheme = localStorage.getItem("theme") || "light";
-				setStore({...store, theme: storedTheme });
+				setStore({ ...store, theme: storedTheme });
 				document.body.setAttribute("data-bs-theme", storedTheme);
 			},
 
 			setTheme: (newTheme) => {
 				const store = getStore();
 
-				setStore({...store, theme: newTheme });
+				setStore({ ...store, theme: newTheme });
 				localStorage.setItem("theme", newTheme);
 				document.body.setAttribute('data-bs-theme', newTheme);
 			},
@@ -283,7 +290,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const store = getStore();
 
 				try {
-					if (!description || !amount || !type || !category_name || !wallet_id) {
+					if (!description || !amount || !type || !wallet_id) {
 						console.error("Faltan campos requeridos para agregar el registro.");
 						return false;
 					}
@@ -321,7 +328,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 						console.error("No se pudieron actualizar las wallets del usuario")
 					}
 
-					setStore({ ...store, records: [...store.records, data]});
+					setStore({ ...store, records: [...store.records, data] });
 					return true;
 
 				} catch (error) {
@@ -345,7 +352,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					if (description !== undefined) editData.description = description;
 					if (amount !== undefined) editData.amount = amount;
 					if (cat_id !== undefined) editData.category_id = cat_id;
-					
+
 					const response = await fetch(URLeditRecord, {
 						method: "PUT",
 						headers: {
@@ -361,9 +368,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 					}
 					const data = await response.json()
 
-					setStore({...store, records: store.records.map(record =>
-						record.id === editId ? data : record
-					)})
+					setStore({
+						...store, records: store.records.map(record =>
+							record.id === editId ? data : record
+						)
+					})
 					return true
 
 				} catch (error) {
@@ -374,7 +383,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			//Elimina un registro
-			deleteRecord : async (recordId)=>{
+			deleteRecord: async (recordId) => {
 				const urlDeleteRecord = `${apiUrl}/api/records/delete/${recordId}`;
 				const store = getStore();
 
@@ -424,9 +433,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					if (!response.ok) {
 						throw new Error("Hubo un error al obtener el usuario");
 					}
-		
+
 					const data = await response.json();
-					console.log("Usuario obtenido correctamente:", data);
 					setStore({ ...getStore(), currentUser: data });
 					return true;
 				} catch (error) {
@@ -440,7 +448,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			updateUser: async (name, email, password, phone, address) => {
 				const URLupdateUser = `${apiUrl}/api/user/edit`;
 				const store = getStore();
-			
+
 				let userData = {};
 				if (name !== undefined) userData.name = name;
 				if (email !== undefined) userData.email = email;
@@ -449,7 +457,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 				if (phone !== undefined) userData.phone = phone;
 				if (address !== undefined) userData.address = address;
-			
+
 				const response = await fetch(URLupdateUser, {
 					method: "PUT",
 					headers: {
@@ -458,22 +466,22 @@ const getState = ({ getStore, getActions, setStore }) => {
 					},
 					body: JSON.stringify(userData)
 				});
-			
+
 				if (!response.ok) {
 					console.error("Error al actualizar el usuario");
 					return false;
 				}
-			
+
 				const updatedUser = await response.json();
 				console.log("Usuario actualizado:", updatedUser);
-			
+
 				// Actualiza el estado del store con el usuario actualizado
 				setStore({ ...store, currentUser: updatedUser });
-			
+
 				return true;
 			},
-			
-		
+
+
 			// Action  para crear nueva meta (goal)
 
 			setGoal: async (name_goal, goal_value) => {
@@ -501,10 +509,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 						})
 					});
 
-					if(response.status == "403"){
+					if (response.status == "403") {
 						return "403";
 					}
-						
 
 					if (!response.ok) {
 						const errorData = await response.json();
@@ -804,7 +811,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			// action para añadir una nueva wallet
-			addUserWallet: async (name_wallet,initial_value,currency_id) => {
+			addUserWallet: async (name_wallet, initial_value, currency_id) => {
 
 				try {
 					const result = await fetch(`${apiUrl}/api/wallet/add`, {
@@ -838,9 +845,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return false
 				}
 			},
-      
+
 			/// Action para obtener todos los wallets de un usuario
-			getAllUserWallets: async()=> {
+			getAllUserWallets: async () => {
 				try {
 
 					const result = await fetch(`${apiUrl}/api/wallet/get`, {
@@ -867,7 +874,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			// action para actualizar la info de un wallet
-			editUserWallet: async(name_wallet,initial_value,currency_id,wallet_id)=>{
+			editUserWallet: async (name_wallet, initial_value, currency_id, wallet_id) => {
 
 				try {
 
@@ -888,13 +895,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 						throw new Error("Se presento el siguiente error: ", error)
 					}
 					const data = await result.json();
-					 listaModificada = getStore().wallets_from_user.map(wallet => {
-					 	return wallet.id === wallet_id ? {...wallet, ...data} : wallet
-					 })
+					listaModificada = getStore().wallets_from_user.map(wallet => {
+						return wallet.id === wallet_id ? { ...wallet, ...data } : wallet
+					})
 
-					 setStore({...getStore(), wallets_from_user:listaModificada})
+					setStore({ ...getStore(), wallets_from_user: listaModificada })
 
-					 
+
 					return true
 
 				}
@@ -905,7 +912,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			// action para borrar un wallet
-			deleteUserWallet: async(wallet_id) => {
+			deleteUserWallet: async (wallet_id) => {
 
 				try {
 
@@ -921,7 +928,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 						throw new Error("Se presento el siguiente error: ", error)
 					}
 
-					setStore({...getStore(), wallets_from_user: getStore().wallets_from_user.filter(wallet => wallet.id !== wallet_id)})
+					setStore({ ...getStore(), wallets_from_user: getStore().wallets_from_user.filter(wallet => wallet.id !== wallet_id) })
 					console.log(`El wallet ${wallet_id} fue eliminado con exito`)
 
 					return true
@@ -933,7 +940,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			// Action para obtener un solo wallet
-			getSingleUserWallet: async(wallet_id) => {
+			getSingleUserWallet: async (wallet_id) => {
 
 				try {
 					const result = await fetch(`${apiUrl}/api/wallet/get/${wallet_id}`, {
@@ -961,7 +968,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 			},
 			//Action para obtener todos los usuarios y actualizarlo en el store
-			getUsers: async()=> {
+			getUsers: async () => {
 				try {
 					const result = await fetch(`${apiUrl}/api/admin/get-users`, {
 						method: "GET",
@@ -971,24 +978,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 						}
 					})
 
-					if(!result.ok){
+					if (!result.ok) {
 						throw new Error("Se presento el siguiente error: ", error)
 					}
 
 					const data = await result.json()
 
-					setStore({...getStore(), users: data})
+					setStore({ ...getStore(), users: data })
 					console.log(getStore().users)
 					return true
-	
-					
+
+
 				} catch (error) {
 					console.error("Se presento el siguiente error: ", error)
 					return false
 				}
 			},
 			// Action para eliminar un usuario y actualizarlo en el store
-			deleteUser: async(user_id) => {
+			deleteUser: async (user_id) => {
 				try {
 
 					const result = await fetch(`${apiUrl}/api/admin/user/delete/${user_id}`, {
@@ -999,24 +1006,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 						}
 					})
 
-					if(result.status == "403"){
+					if (result.status == "403") {
 						return "403"
 					}
 
-					if(!result.ok){
+					if (!result.ok) {
 						throw new Error("Se presento el siguiente error: ", error)
 					}
 
 					const data = await result.json()
-					setStore({...getStore(), users: getStore().users.filter(user => user.id !== user_id)})	
-					return true		
+					setStore({ ...getStore(), users: getStore().users.filter(user => user.id !== user_id) })
+					return true
 				} catch (error) {
 					console.error("Se presento el siguiente error: ", error)
 					return false
 				}
 			},
 			// Action para añadir categorias al API y guardar en el store
-			addCategory: async(name,description) => {
+			addCategory: async (name, description) => {
 				try {
 
 					const result = await fetch(`${apiUrl}/api/categories/add`, {
@@ -1026,19 +1033,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify({
-							name:name,
-							description:description
+							name: name,
+							description: description
 						})
 					})
 
-					if(!result.ok){
+					if (!result.ok) {
 						throw new Error("Se presento el siguiente error: ", error)
 					}
 
 					const data = await result.json()
 
-					console.log(data)
-					setStore({...getStore(), categories_db:[...getStore().categories_db, data]})
+					setStore({ ...getStore(), categories_db: [...getStore().categories_db, data] })
 
 					return true
 				} catch (error) {
@@ -1047,7 +1053,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 			// Action para obtener todas las categorias y guardarlas en el store
-			getCategories: async()=>{
+			getCategories: async () => {
 				try {
 
 					const result = await fetch(`${apiUrl}/api/categories`, {
@@ -1055,26 +1061,26 @@ const getState = ({ getStore, getActions, setStore }) => {
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem('token')}`,
 							"Content-Type": "application/json",
-							}
+						}
 					})
 
-					if(!result.ok){
+					if (!result.ok) {
 						throw new Error("Se presento el siguiente error: ", error)
 					}
 
 					const data = await result.json()
 
-					setStore({...getStore(), categories_db: data.categories})
-					console.log(getStore().categories_db)
+					setStore({ ...getStore(), categories_db: data.categories })
+
 					return true
 				} catch (error) {
-					console.error("Se presento el siguiente error: ", error)	
-					return false			
+					console.error("Se presento el siguiente error: ", error)
+					return false
 				}
 
 			},
 			// Action para editar la categoria, enviarla al API y actualizar en el store
-			editCategory: async(id,name,description)=> {
+			editCategory: async (id, name, description) => {
 
 				try {
 
@@ -1085,12 +1091,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify({
-							name:name,
-							description:description
+							name: name,
+							description: description
 						})
 					})
 
-					if(!result.ok){
+					if (!result.ok) {
 						throw new Error("Se presento el siguiente error: ", error)
 					}
 
@@ -1103,16 +1109,16 @@ const getState = ({ getStore, getActions, setStore }) => {
 						)
 					});
 					return true
-					
+
 				} catch (error) {
-					console.error("Se presento el siguiente error: ", error)	
+					console.error("Se presento el siguiente error: ", error)
 					return false
-					
+
 				}
 
 			},
 			// Action para eliminar la categoria y actualizarlo en el store
-			deleteCategory: async(id) => {
+			deleteCategory: async (id) => {
 				try {
 
 					const result = await fetch(`${apiUrl}/api/categories/delete/${id}`, {
@@ -1120,30 +1126,93 @@ const getState = ({ getStore, getActions, setStore }) => {
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem('token')}`,
 							"Content-Type": "application/json",
-							}
+						}
 					})
 
-					if(!result.ok){
+					if (!result.ok) {
 						throw new Error("Se presento el siguiente error: ", error)
 					}
 
-					setStore({...getStore(), categories_db: getStore().categories_db.filter(category => category.id !== id)})
+					setStore({ ...getStore(), categories_db: getStore().categories_db.filter(category => category.id !== id) })
 					return true
 
-					
+
 				} catch (error) {
-					console.error("Se presento el siguiente error: ", error)	
+					console.error("Se presento el siguiente error: ", error)
 					return false
-					
+
 				}
 			},
 
 			//Actions Juan
 
+			// Action Calcular Ahorro (Calculadora)
+
+			calcularAhorro: async (datos) => {
+    try {
+        const response = await fetch(`${apiUrl}/api/calculate-savings`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData?.message || "Error en el cálculo de ahorro");
+        }
+
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error("Error al calcular ahorro:", error);
+        throw error;
+    }
+},
+
+
+			
+  // Action  para obtener solo el conteo de usuarios
+    getUsersCount: async () => {
+        try {
+            const result = await fetch(`${apiUrl}/api/admin/users/count`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    "Content-Type": "application/json",
+                }
+            });
+
+            if (!result.ok) {
+                const errorData = await result.json();
+                throw new Error(`Se presentó el siguiente error al obtener el conteo: ${errorData.msg || result.statusText}`);
+            }
+
+            const data = await result.json();
+
+            setStore({
+                ...getStore(),
+                totalUsersCount: data.total_users_count // Guarda el conteo en la nueva propiedad
+            });
+
+            console.log("Conteo total de usuarios obtenido:", getStore().totalUsersCount);
+            return true;
+
+        } catch (error) {
+            console.error("Se presentó el siguiente error al obtener el conteo de usuarios: ", error);
+            setStore({...getStore(), totalUsersCount: null}); // Opcional: Limpiar si hay un error
+            return false;
+        }
+    },
+
+
 			//Actions Rafa
-			
+
 			//Actions Jose
-			
+
 			//Actions Fede
 		}
 	};
