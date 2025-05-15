@@ -47,7 +47,7 @@ const AddRecord = () => {
         setInputValue("")
 
         // const response = await actions.addRecord(words.join(" "), amount, type, matchedCategory, localStorage.getItem("selected_wallet"))
-        const response = await actions.addRecord(inputValue, amount, type, null, localStorage.getItem("selected_wallet"))
+        const response = await actions.addRecord(words.join(" "), amount, type, null, localStorage.getItem("selected_wallet"))
 
         if (!response) {
             console.log("Hubo un error al intentar agregar el registro.")
